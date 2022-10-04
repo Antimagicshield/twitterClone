@@ -1,104 +1,19 @@
 import {
-  faFacebook,
-  faFacebookF,
   faFacebookSquare,
   faInstagram,
 } from '@fortawesome/free-brands-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import styled from 'styled-components'
-
-const Title = styled.h1`
-  color: ${props => props.theme.fontColor};
-`
-
-const Container = styled.div`
-  display: flex;
-  height: 100vh;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-`
-
-const WhiteBox = styled.div`
-  background-color: white;
-  border: 1px solid ${props => props.theme.borderColor};
-  width: 100%;
-`
-
-const TopBox = styled(WhiteBox)`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  padding: 35px 40px 25px 40px;
-  margin-bottom: 10px;
-  form {
-    margin-top: 35px;
-    width: 100%;
-    display: flex;
-    justify-items: center;
-    flex-direction: column;
-    align-items: center;
-  }
-`
-
-const Input = styled.input`
-  width: 100%;
-  border-radius: 3px;
-  padding: 7px;
-  background-color: #fafafa;
-  border: 0.5px solid rgb(219, 219, 219);
-  margin-top: 5px;
-  box-sizing: border-box;
-  &::placeholder {
-    font-size: 12px;
-  }
-`
-
-const Button = styled.input`
-  border-radius: 3px;
-  border: none;
-  margin-top: 12px;
-  background-color: ${props => props.theme.accent};
-  color: white;
-  text-align: center;
-  padding: 8px 0px;
-  font-weight: 600;
-  width: 100%;
-`
-
-const BottomBox = styled(WhiteBox)`
-  padding: 20px 0px;
-  text-align: center;
-  a {
-    font-weight: 600;
-    color: ${props => props.theme.accent};
-  }
-`
-
-const Wrapper = styled.div`
-  max-width: 350px;
-  width: 100%;
-`
-
-const Separator = styled.div`
-  margin: 20px 0px 30px 0px;
-  text-transform: uppercase;
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  align-items: center;
-  div {
-    width: 100%;
-    height: 1px;
-    background-color: rgb(219, 219, 219);
-  }
-  span {
-    margin: 0px 10px;
-    font-weight: 600;
-    color: #8e8e8e;
-  }
-`
+import AuthLayout from '../components/auth/Container'
+import Button from '../components/auth/Button'
+import Seperator from '../components/auth/Seperator'
+import Input from '../components/auth/Input'
+import FormBox from '../components/auth/FormBox'
+import BottomBox from '../components/auth/BottomBox'
+import routes from './routes'
+import PageTitle from '../components/auth/PageTitle'
+import { useForm } from 'react-hook-form'
+import FormError from '../components/auth/FormError'
 
 const FacebookLogin = styled.div`
   color: #385285;
@@ -109,33 +24,67 @@ const FacebookLogin = styled.div`
 `
 
 function Login() {
+  const {
+    register,
+    formState: { errors, isValid },
+    handleSubmit,
+  } = useForm({ mode: 'onChange' })
+  const onSubmitValid = data => {
+    // console.log(data)
+  }
+
   return (
-    <Container>
-      <Wrapper>
-        <TopBox>
-          <div>
-            <FontAwesomeIcon icon={faInstagram} size="3x" />
-          </div>
-          <form>
-            <Input type="text" placeholder="Username" />
-            <Input type="password" placeholder="Password" />
-            <Button type="submit" value="Log in" />
-          </form>
-          <Separator>
-            <div></div>
-            <span>Or</span>
-            <div></div>
-          </Separator>
-          <FacebookLogin>
-            <FontAwesomeIcon icon={faFacebookSquare} />
-            <span>Log in with Facebook</span>
-          </FacebookLogin>
-        </TopBox>
-        <BottomBox>
-          <span>Don't have an account?</span> <a href="#">Sign up</a>
-        </BottomBox>
-      </Wrapper>
-    </Container>
+    <AuthLayout>
+      <PageTitle title="Log in" />
+      <FormBox>
+        <div>
+          <FontAwesomeIcon icon={faInstagram} size="3x" />
+        </div>
+        <form onSubmit={handleSubmit(onSubmitValid)}>
+          <Input
+            {...register('username', {
+              required: {
+                value: true,
+                message: 'Username is Required',
+              },
+              minLength: {
+                value: 5,
+                message: 'Username should be longer than 5 chars!',
+              },
+            })}
+            name="username"
+            type="text"
+            placeholder="Username"
+            hasError={Boolean(errors?.username?.message)}
+          />
+          <FormError message={errors?.username?.message} />
+          <Input
+            {...register('password', {
+              required: {
+                value: true,
+                message: 'Password is Required',
+              },
+            })}
+            name="password"
+            type="password"
+            placeholder="Password"
+            hasError={Boolean(errors?.password?.message)}
+          />
+          <FormError message={errors?.password?.message} />
+          <Button type="submit" value="Log in" disabled={!isValid} />
+        </form>
+        <Seperator />
+        <FacebookLogin>
+          <FontAwesomeIcon icon={faFacebookSquare} />
+          <span>Log in with Facebook</span>
+        </FacebookLogin>
+      </FormBox>
+      <BottomBox
+        cta="Don't have account?"
+        link={routes.signUp}
+        linkText="Sign Up"
+      />
+    </AuthLayout>
   )
 }
 export default Login
